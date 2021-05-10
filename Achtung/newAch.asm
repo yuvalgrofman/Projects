@@ -24,6 +24,7 @@ numLoopsInvert db 0
 shouldInvert db 0
 
 p1_or_p2_plus db 0
+winnerColor db 0
 
 moveLoopCounter db 0
 
@@ -68,6 +69,22 @@ numLoopsWaitForCharacter db 0
 
 plus_x db 0 
 plus_y db 0
+
+
+;  ____ _  _  __   __ _ __ _ ____          
+; (_  _) )( \/ _\ (  ( (  / ) ___)         
+;   )( ) __ (    \/    /)  (\___ \         
+;  (__)\_)(_|_/\_/\_)__|__\_|____/         
+;  ____ __ ____                            
+; (  __)  (  _ \                           
+;  ) _|  O )   /                           
+; (__) \__(__\_)                           
+;  ____ __     __  _  _ __ __ _  ___       
+; (  _ (  )   / _\( \/ |  |  ( \/ __)      
+;  ) __/ (_/\/    \)  / )(/    ( (_ \      
+; (__) \____/\_/\_(__/ (__)_)__)\___/   
+
+
 
 menu	db '    _      _   _                  ', 10, 13
         db '   /_\  __| |_| |_ _  _ _ _  __ _ ', 10, 13
@@ -130,6 +147,20 @@ int 10h
 popa
 ret 
 endp graphicMode
+
+proc setTextAttribute
+    push    es              ; save the seg register
+    mov     cx, 80*25       ; # of chars to do
+    mov     bx, 0B800h      ; segment of the screen memory for this video mode
+    mov     es, bx
+    xor     di, di          ; point to char data of screen-pos 0,0
+setTextAttributesLoop:
+    inc     di              ; advance by 1 to point to the attribute, rather than the char
+    stosb                   ; store our attribute byte to [es:di] and increment di. di now points to a character
+    loop    setTextAttributesLoop
+    pop     es
+    ret
+endp settextattribute
 
 proc waitForInput
 ;waits for user input then puts the key pressed in al 
@@ -692,6 +723,7 @@ call getrandonNum;calling as soon as psb because this function needs user input
 startOfCode: 
 
 call graphicmode
+
 mov dx, offset menu
 call printstr
 
@@ -723,6 +755,7 @@ jmp waitForCharacter
 explainGame:
 call textmode
 
+call settextattribute
 mov dx, offset explanation
 call printstr
 
@@ -1056,6 +1089,7 @@ je p1lost
 jmp p2Lost
 
 p1Lost:
+mov [winnercolor],021h 
 call textmode
 inc [p2_wins]
 mov dx, offset p1LostString 
@@ -1065,6 +1099,7 @@ call printstr
 jmp EndGame
 
 p2Lost:
+mov [winnercolor],012h 
 call textmode
 inc [p1_wins]
 mov dx, offset p2LostString 
@@ -1077,6 +1112,7 @@ EndGame:
 
 ;print match ended string and tells the user which key to play again/quit
 ;printing the score 
+
 mov dx, offset scoreP1 
 call printstr
 mov dx, 0
@@ -1094,6 +1130,10 @@ call printstr
 call newline
 mov dx, offset playagain
 call printstr
+
+mov al, [winnercolor]
+
+call settextattribute
 
 waitingForValidInput: 
 

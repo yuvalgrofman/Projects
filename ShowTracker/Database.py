@@ -9,6 +9,7 @@ class Database:
     def __init__(self, filename):
         try:         
             self.createDatabase(filename)
+            self.createShowTable()
         except: 
             print("An error has occurred")
 
