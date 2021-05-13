@@ -52,3 +52,4 @@ plotStock(myAccessKey, 'AMZN', '2021-01-01')
 #     print(stock_data['symbol'])
 #     print(stock_data['date'])
 #     print(stock_data['high'])
+

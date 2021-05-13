@@ -9,13 +9,18 @@ class Database:
     def __init__(self, filename):
         try:         
             self.createDatabase(filename)
-            self.createShowTable()
+                
+            self.cursor.execute(''' SELECT count(name) FROM sqlite_master WHERE type='table' AND name='shows' ''')
+
+            if self.cursor.fetchone()[0] == 0:
+                self.createShowTable()
+
         except: 
             print("An error has occurred")
 
     def createDatabase(self, filename):
 
-        self.conn = sqlite3.connect(filename)
+        self.conn = sqlite3.connect(str(filename)+".db")
         self.cursor = self.conn.cursor()
 
     def createShowTable(self):
@@ -25,7 +30,7 @@ class Database:
                 numSeasons int, 
                 numEpisodes int, 
                 releaseDate text, 
-                isAiring int,
+                isAiring text,
                 nextEpisodeReleaseDate text,
                 nextEpName text)  
                     """)
@@ -81,6 +86,11 @@ class Database:
     def getAllShows(self):
         self.cursor.execute("SELECT DISTINCT * FROM shows")
         return self.cursor.fetchall()
+
+    def getColumnNames(self):
+    #this works beautifully given that you know the table name
+        self.cursor.execute("select * from shows")
+        return [member[0] for member in self.cursor.description]
 
 
 def main():

@@ -25,7 +25,7 @@ class Show:
             isShowOrMovie = args[1]
             api_key = args[2]
 
-            self.name = name 
+            self.name = name.lower()
             self.name.replace(" ", "+")
             self.isShowOrMovie = isShowOrMovie
             self.api_key = api_key
@@ -37,6 +37,7 @@ class Show:
             self.isAiring = None
 
             self.getData()
+            assert self.data != None
             
         else: 
             self.name = args[0]
@@ -51,7 +52,13 @@ class Show:
 
     def getData(self, numInResult = 0):
 
-        self.id = requests.get(("https://api.themoviedb.org/3/search/{isShowOrMovie}?api_key={api_key}&language=en-US&query={name}").format(isShowOrMovie = self.isShowOrMovie, api_key = self.api_key, name = self.name)).json()['results'][numInResult]['id']
+        try: 
+
+            self.id = requests.get(("https://api.themoviedb.org/3/search/{isShowOrMovie}?api_key={api_key}&language=en-US&query={name}").format(isShowOrMovie = self.isShowOrMovie, api_key = self.api_key, name = self.name)).json()['results'][numInResult]['id']
+
+        except IndexError or KeyError: 
+            raise Exception("No Results For Name " + str(self.name)) 
+
         self.data = requests.get(('https://api.themoviedb.org/3/tv/{id}?api_key={api_key}&language=en-US').format(id = self.id, api_key = self.api_key)).json() 
 
         self.numSeasons = self.data["number_of_seasons"]
@@ -60,11 +67,16 @@ class Show:
 
         self.getNextAiringEpisode()
 
-        if self.isAiring == False: 
-            self.nextEpisodeReleaseDate = ""
+        if self.isAiring == 'No': 
+            self.nextEpisodeReleaseDate = "None"
+            self.nextEpName = "None"
             return self.data 
 
         self.nextEpName = self.nextEp["name"]
+        
+        if (self.nextEpName == ""):
+            self.nextEpName = "Not Yet Released"
+
         self.nextEpisodeReleaseDate = self.nextEp["air_date"] 
 
         return self.data
@@ -73,18 +85,18 @@ class Show:
 
         if not self.data["next_episode_to_air"] == None: 
             self.nextEp = self.data["next_episode_to_air"]
-            self.isAiring = True
+            self.isAiring = 'Yes'
 
             return self.nextEp
 
-        self.isAiring = False
+        self.isAiring = 'No'
         return None
 
     def updateData(self):
         self.data = requests.get(('https://api.themoviedb.org/3/tv/{id}?api_key={api_key}&language=en-US').format(id = self.id, api_key = self.api_key)).json() 
         self.getNextAiringEpisode()
 
-        if self.isAiring == False: 
+        if self.isAiring == 'No': 
             self.nextEpisodeReleaseDate = ""
             return self.data 
 

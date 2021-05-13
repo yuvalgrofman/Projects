@@ -17,9 +17,12 @@ EmailPassword = os.environ.get('EMAIL_PASS')
 def checkDatabase(database):
     showsTommorrow = database.getShowsByDate(str(date.today() + timedelta(days = 1) )) 
     showsToday = database.getShowsByDate(str(date.today())) 
-    showsYesterday = database.getShowsByDate(str(date.today() - timedelta(days = 1)))
+    allShows = database.getAllShows()
 
     showsTodayMessage = "The following episodes air today: "  
+    showsTommorrowMessage = "The following episodes air tommorrow: "  
+    allShowsMessage = "These are the shows you watch: "  
+
     if len(showsToday) != 0:
         for show in showsToday: 
             showsTodayMessage += ('\nThe episode \"' + show[6] + '\" of ' + str(show[0]) + ' airs today')
@@ -27,19 +30,27 @@ def checkDatabase(database):
         showsTodayMessage = "No show you currently watch air today"
 
     if len(showsTommorrow) != 0:
-        showsTommorrowMessage = "The following shows air tommorrow: " 
         for show in showsTommorrow: 
-            showsTodayMessage += ('\nThe episode \"' + show[6] + '\" of ' + str(show[0]) + ' airs tommorrow')
+            showsTommorrowMessage += ('\nThe episode \"' + show[6] + '\" of ' + str(show[0]) + ' airs tommorrow')
     else: 
         showsTommorrowMessage = "No show you currently watch air tommorrow"
+    
+    if len(allShows) != 0:
+        for show in allShows:
+            allShowsMessage += str(show[0]) + ', '  
+    
+    else: 
+        allShowsMessage = "You are currently not watching any shows"
 
-    sendShowReminder(EmailAddress, EmailPassword, 'Upcoming shows', showsTodayMessage, 'ninjagrofman@gmail.com')
-    sendShowReminder(EmailAddress, EmailPassword, 'Upcoming shows', showsTommorrowMessage, 'ninjagrofman@gmail.com')
+    sendShowReminder(EmailAddress, EmailPassword, 'Shows Today', showsTodayMessage, 'ninjagrofman@gmail.com')
+    sendShowReminder(EmailAddress, EmailPassword, 'Shows Tommorrow', showsTommorrowMessage, 'ninjagrofman@gmail.com')
+    sendShowReminder(EmailAddress, EmailPassword, 'All Shows', allShowsMessage, 'ninjagrofman@gmail.com')
+    
 
     showsToUpdate = []
 
-    for currentShow in showsYesterday: 
-        showsToUpdate.append(Show(currentShow[0], 'tv', showApiKey))
+    for show in allShows: 
+        showsToUpdate.append(Show(show[0], 'tv', showApiKey))
 
     for show in showsToUpdate: 
         database.updateShow(show)
@@ -63,6 +74,7 @@ def startWatch(filename, checkTime):
 
     showsDatabase = Database(filename)
     schedule.every().day.at(checkTime).do(checkDatabase, showsDatabase)
+
 
     while True:
         schedule.run_pending()
