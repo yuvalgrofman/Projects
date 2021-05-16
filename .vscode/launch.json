@@ -17,20 +17,6 @@
             "program": "${file}",
             "console": "integratedTerminal"
         },
-        // {
-        //     "type": "java",
-        //     "name": "Launch OlympiadJumperMain",
-        //     "request": "launch",
-        //     "mainClass": "OlympiadJumperMain",
-        //     "projectName": "Projects_76dc349f"
-        // },
-        // {
-        //     "type": "java",
-        //     "name": "Launch StudentsAverage",
-        //     "request": "launch",
-        //     "mainClass": "StudentsAverage",
-        //     "projectName": "Projects_76dc349f"
-        // },
         {
             "type": "java",
             "name": "Launch - TicTacToe",
@@ -46,90 +32,6 @@
             "cwd": "${workspaceRoot}",
             "console": "integratedTerminal"
         },
-        // {
-        //     "type": "java",
-        //     "name": "Launch aboveAverage",
-        //     "request": "launch",
-        //     "mainClass": "aboveAverage",
-        //     "projectName": "Projects_76dc349f"
-        // },
-        // {
-        //     "type": "java",
-        //     "name": "Launch TalmidMain",
-        //     "request": "launch",
-        //     "mainClass": "array.TalmidMain",
-        //     "projectName": "Projects_76dc349f"
-        // },
-        // {
-        //     "type": "java",
-        //     "name": "Launch Array1",
-        //     "request": "launch",
-        //     "mainClass": "array.TwoDimensions.Array1",
-        //     "projectName": "Projects_76dc349f"
-        // },
-        // {
-        //     "type": "java",
-        //     "name": "Launch Array2",
-        //     "request": "launch",
-        //     "mainClass": "array.TwoDimensions.Array2",
-        //     "projectName": "Projects_76dc349f"
-        // },
-        // {
-        //     "type": "java",
-        //     "name": "Launch Array3",
-        //     "request": "launch",
-        //     "mainClass": "array.TwoDimensions.Array3",
-        //     "projectName": "Projects_76dc349f"
-        // },
-        // {
-        //     "type": "java",
-        //     "name": "Launch Array4",
-        //     "request": "launch",
-        //     "mainClass": "array.TwoDimensions.Array4",
-        //     "projectName": "Projects_76dc349f"
-        // },
-        // {
-        //     "type": "java",
-        //     "name": "Launch Array5",
-        //     "request": "launch",
-        //     "mainClass": "array.TwoDimensions.Array5",
-        //     "projectName": "Projects_76dc349f"
-        // },
-        // {
-        //     "type": "java",
-        //     "name": "Launch mainOne",
-        //     "request": "launch",
-        //     "mainClass": "array.mainOne",
-        //     "projectName": "Projects_76dc349f"
-        // },
-        // {
-        //     "type": "java",
-        //     "name": "Launch mainTwo",
-        //     "request": "launch",
-        //     "mainClass": "array.mainTwo",
-        //     "projectName": "Projects_76dc349f"
-        // },
-        // {
-        //     "type": "java",
-        //     "name": "Launch classShirtMain",
-        //     "request": "launch",
-        //     "mainClass": "classShirtMain",
-        //     "projectName": "Projects_76dc349f"
-        // },
-        // {
-        //     "type": "java",
-        //     "name": "Launch buildingFamilyMain",
-        //     "request": "launch",
-        //     "mainClass": "familyBuilding.buildingFamilyMain",
-        //     "projectName": "Projects_76dc349f"
-        // },
-        // {
-        //     "type": "java",
-        //     "name": "Launch ClassroomMain",
-        //     "request": "launch",
-        //     "mainClass": "oop.ClassroomMain",
-        //     "projectName": "Projects_76dc349f"
-        // },
         {
             "type": "java",
             "name": "Battleships Client - LocalHost",
@@ -143,15 +45,8 @@
             "request": "launch",
             "mainClass": "src.server.serverMain",
             "projectName": "Projects_76dc349f"
-        },
-        // {
-        //     "type": "java",
-        //     "name": "Launch test",
-        //     "request": "launch",
-        //     "mainClass": "test",
-        //     "projectName": "Projects_76dc349f"
-        // },
-   ],"compounds": [
+        }
+    ],"compounds": [
      {
          "name": "Battleships game - localHost",
          "configurations": ["Battleships Server - LocalHost", "Battleships Client - LocalHost", "Battleships Client - LocalHost"]

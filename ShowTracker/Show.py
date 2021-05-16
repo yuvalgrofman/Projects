@@ -17,8 +17,14 @@ class Show:
     
     '''
 
-
     def __init__(self, *args):
+        """
+            Takes either 3 arguments and sets variables according to external database or
+            Takes all arguments
+
+        Raises:
+            TypeError: raises if the length of the parameters is not 3 or 6 
+        """
 
         if len(args) == 3:
             name = args[0]
@@ -39,7 +45,7 @@ class Show:
             self.getData()
             assert self.data != None
             
-        else: 
+        elif len(args) == 6: 
             self.name = args[0]
             self.numSeasons = args[1]
             self.numEpisodes = args[2]
@@ -47,10 +53,27 @@ class Show:
             self.isAiring = args[4]
             self.nextEpisodeReleaseDate = args[5]
 
+        else: 
+            raise TypeError("The input must either be of length 3 and include (string) name, (bool) isShowOrMovie, (string) Api_Key or of length 6 and include name, numSeasons, numEpisodes, ReleaseDate, (bool) isAiring, nextEpisodeReleaseDate")
+
 
 
 
     def getData(self, numInResult = 0):
+        """
+            sets all the necessary about the show 
+            ie: name, numSeasons/Episodes, release date, if the shows is airing 
+                if so next Episodes name and release date
+
+        Args:
+            numInResult (int, optional): If there are multiple results in the online show database it will take the one which is #numInResult (starting count in 0) . Defaults to 0.
+
+        Raises:
+            Exception: If there are no results will throw an Exception 
+
+        Returns:
+            JSON: The a json encoded response sent by the online database containing info about the show 
+        """
 
         try: 
 
@@ -82,6 +105,13 @@ class Show:
         return self.data
 
     def getNextAiringEpisode(self): 
+        """
+                Generates the data about the next airing episode if there is one 
+                if not sets variables accordingly
+
+        Returns:
+            JSON: which contains data about next episodes to be released if there isn't one returns None  
+        """
 
         if not self.data["next_episode_to_air"] == None: 
             self.nextEp = self.data["next_episode_to_air"]
@@ -93,6 +123,12 @@ class Show:
         return None
 
     def updateData(self):
+        """
+            Updates the data about the show. EVERYTHING
+
+        Returns:
+            None
+        """
         self.data = requests.get(('https://api.themoviedb.org/3/tv/{id}?api_key={api_key}&language=en-US').format(id = self.id, api_key = self.api_key)).json() 
         self.getNextAiringEpisode()
 
@@ -102,3 +138,4 @@ class Show:
 
         self.nextEpisodeReleaseDate = self.nextEp["air_date"] 
         self.nextEpName = self.nextEp["name"] 
+

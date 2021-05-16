@@ -80,7 +80,7 @@ class Database:
         return self.cursor.fetchall()
 
     def getShowsByDate(self, nextEpisodeReleaseDate):
-        self.cursor.execute("SELECT DISTINCT * FROM shows WHERE nextEpisodeReleaseDate=:nextEpisodeReleaseDate AND isAiring=1", {'nextEpisodeReleaseDate' : nextEpisodeReleaseDate})
+        self.cursor.execute("SELECT DISTINCT * FROM shows WHERE nextEpisodeReleaseDate=:nextEpisodeReleaseDate", {'nextEpisodeReleaseDate' : nextEpisodeReleaseDate})
         return self.cursor.fetchall()
 
     def getAllShows(self):

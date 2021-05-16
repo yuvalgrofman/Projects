@@ -17,14 +17,23 @@
   ],
   "java.project.sourcePaths": [
     "pastProjects/Java Projects/Java Assignments",
+    "pastProjects/Java Projects/Java Assignments/static",
     "pastProjects/Java Projects/TicTacToe/src/yuval/grofman",
     "pastProjects/Java Projects/Battleships"
   ],
-  "sqltools.useNodeRuntime": true,
   "python.pythonPath": "C:\\Users\\User\\AppData\\Local\\Programs\\Python\\Python39\\python.exe",
   "java.project.referencedLibraries": [
     "lib/**/*.jar",
     "pastProjects/Java Projects/Battleships/lib/flatlaf-1.0.jar",
     "pastProjects/Java Projects/Battleships/lib/flatlaf-intellij-themes-1.0.jar"
-  ]
+  ], 
+  "python.autoComplete.extraPaths": [
+    "${workspaceFolder}/ShowTracker",
+    "${workspaceFolder}/Hangman",
+    "${workspaceFolder}/StockBot"
+  ],
+  "python.analysis.extraPaths": [
+    "${workspaceFolder}/ShowTracker"
+  ],
+  "python.analysis.completeFunctionParens": true,
 }
