@@ -18,6 +18,7 @@ x db 0
 xSymbol db 0
 ySymbol db 0
 Symbol db '0'
+symbolColor db 0
 
 ;Num Loops Invert
 numLoopsInvert db 0
@@ -27,6 +28,8 @@ p1_or_p2_plus db 0
 winnerColor db 0
 
 moveLoopCounter db 0
+
+isPaused db 0
 
 ;drawPlayer
 color db 1
@@ -103,8 +106,10 @@ explanation	db 'How to play?                ', 10, 13, 10, 13
         db 'Without touching the stars -> *', 10, 13
         db 'Also eating "orbs" give special effects.   ', 10, 13, 10, 13
         db '@ - This will speed or slow both players', 10,13
-        db '+ - This will clear the map ', 10,13,10,13 
-        db '> Press any key to continue ', '$'
+        db '+ - This will clear the map ', 10,13
+        db '# - this will invert movement for a certain amount of time', 10,13,10,13
+        db 'To PAUSE - press Esc and to continue press it again ', 10,13
+        db '> Press any key (except esc) to continue ', '$'
     
 EndGameStr db 10,13,'Good Game, Hope everybody had fun!',10,13,'$'
 
@@ -147,6 +152,30 @@ int 10h
 popa
 ret 
 endp graphicMode
+
+proc pauseGame
+pusha 
+pauseLoop: 
+
+mov ah, 1h
+int 16h
+
+jz pauseLoop
+
+mov ah, 0
+int 16h
+
+cmp al, 27
+
+je endOfPause
+jmp pauseLoop
+
+endOfPause:
+popa 
+ret
+endp pausegame
+
+
 
 proc setTextAttribute
     push    es              ; save the seg register
@@ -218,7 +247,7 @@ ret
 endp make@
 
 proc makeSymbol 
-;makes a star sign at the location x_#, y_#
+;makes a symbol sign at the location x_#, y_#
 pusha 
 mov bh, 0
 mov dh, [ysymbol]; in row
@@ -229,7 +258,7 @@ int 10h
 mov ah, 9
 mov al, [symbol] ;AL = character to display
 mov bh, 0h ;BH=Page
-mov bl, 5; BL = Foreground
+mov bl, [symbolColor]; BL = Foreground
 mov cx, 1 ; number of times to write character
 int 10h ; Bois -&gt; show the character
 popa 
@@ -499,14 +528,9 @@ endp clearBoard
 
 proc invertMovement
 mov [shouldinvert], 1
-mov [numloopsinvert], 10
+mov [numloopsinvert], 15
 ret 
 endp invertmovement
-
-proc uninvertMovement
-mov [shouldinvert], 0
-ret 
-endp uninvertmovement
 
 proc changeSpeed 
 pusha 
@@ -533,6 +557,7 @@ endOfChangeSpeed:
 mov [xsymbol], 20
 mov [ysymbol], 17
 mov [symbol], '#'
+mov [symbolcolor], 0Bh 
 
 call makesymbol
 
@@ -862,6 +887,11 @@ je DownKeyTwo
 cmp al, 'w'
 je UpKeyTwo
 
+
+;check if esc pressed
+cmp al, 27
+je pause
+
 movePlayers: 
 
 mov [p1_or_p2_plus], 1
@@ -875,6 +905,11 @@ call delay
 inc [moveloopcounter]
 ;end of loop 
 jmp move 
+
+pause: 
+
+call pauseGame
+jmp move
 
 ;Changing player one dir
 RightKeyOne:
@@ -939,8 +974,6 @@ invertOneUp:
 mov [p1_dir], 's'
 endUpKeyOne:
 jmp movePlayers 
-
-
 
 ;Changing player two dir
 RightKeyTwo:
