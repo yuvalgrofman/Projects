@@ -24,10 +24,11 @@ symbolColor db 0
 numLoopsInvert db 0
 shouldInvert db 0
 
-p1_or_p2_plus db 0
+p1_or_p2_lost db 0
 winnerColor db 0
 
 moveLoopCounter db 0
+charToDisplay db 0
 
 isPaused db 0
 
@@ -63,8 +64,8 @@ p2_dir db 's'
 p2_col db 2
 p2_wins db 0 
 
-colorPlayerone db 1 
-colorPlayerTwo db 2 
+; colorPlayerone db 1 
+; colorPlayerTwo db 2 
 
 line db 10, 13, '$'
 
@@ -72,22 +73,6 @@ numLoopsWaitForCharacter db 0
 
 plus_x db 0 
 plus_y db 0
-
-
-;  ____ _  _  __   __ _ __ _ ____          
-; (_  _) )( \/ _\ (  ( (  / ) ___)         
-;   )( ) __ (    \/    /)  (\___ \         
-;  (__)\_)(_|_/\_/\_)__|__\_|____/         
-;  ____ __ ____                            
-; (  __)  (  _ \                           
-;  ) _|  O )   /                           
-; (__) \__(__\_)                           
-;  ____ __     __  _  _ __ __ _  ___       
-; (  _ (  )   / _\( \/ |  |  ( \/ __)      
-;  ) __/ (_/\/    \)  / )(/    ( (_ \      
-; (__) \____/\_/\_(__/ (__)_)__)\___/   
-
-
 
 menu	db '    _      _   _                  ', 10, 13
         db '   /_\  __| |_| |_ _  _ _ _  __ _ ', 10, 13
@@ -125,57 +110,116 @@ scoreP2 db ' ,Green: ','$'
 CODESEG
 
 proc printChar 
-pusha 
-mov ah, 2
-int 21h
-popa
-ret 
+    pusha 
+    mov ah, 2
+    int 21h
+    popa
+    ret 
 endp printchar
 
 proc delay
-pusha 
-mov cx, 0 ;High Word
-mov cl, [delayTimeHighWord]
-mov dx, [delaytimelowword] ;Low Word
-mov al, 0
-mov ah, 86h ;Wait
-int 15h
-popa 
-ret 
+    pusha 
+    mov cx, 0 ;High Word
+    mov cl, [delayTimeHighWord]
+    mov dx, [delaytimelowword] ;Low Word
+    mov al, 0
+    mov ah, 86h ;Wait
+    int 15h
+    popa 
+    ret 
 endp delay
 
+proc printCharAtXY
+    pusha 
+    call cursor_location
+
+    mov ah, 9
+    mov al, [charToDisplay] ;AL = character to display
+    mov bh, 0h ;BH=Page
+    mov bl, [color] ; BL = Foreground
+    mov cx, 1 ; number of times to write character
+    int 10h ; Bois -&gt; show the character
+    
+    popa 
+    ret 
+endp printCharAtXY
+
 proc graphicMode
-;puts the screen in graphic mode 40 on 25 
-pusha
-mov ax, 13h
-int 10h
-popa
-ret 
+    ;puts the screen in graphic mode 40 on 25 
+    pusha
+    mov ax, 13h
+    int 10h
+    popa
+    ret 
 endp graphicMode
 
 proc pauseGame
-pusha 
-pauseLoop: 
+    push bp 
+    mov bp, sp
+    
+    pusha 
 
-mov ah, 1h
-int 16h
+    mov [x], 16
+    mov [y], 0 
+    mov al, [bp + 4]
+    mov [color], al
+    mov [chartodisplay], 'p'
+    call printCharAtXY
 
-jz pauseLoop
+    mov [x], 17
+    mov [y], 0 
+    mov [chartodisplay], 'a'
+    inc [color]
+    call printCharAtXY
 
-mov ah, 0
-int 16h
+    mov [x], 18
+    mov [y], 0 
+    mov [chartodisplay], 'u'
+    inc [color]
+    call printCharAtXY
 
-cmp al, 27
+    mov [x], 19
+    mov [y], 0 
+    mov [chartodisplay], 's'
+    inc [color]
+    call printCharAtXY
 
-je endOfPause
-jmp pauseLoop
+    mov [x], 20
+    mov [y], 0 
+    mov [chartodisplay], 'e'
+    inc [color]
+    call printCharAtXY
 
-endOfPause:
-popa 
-ret
+    mov [x], 21
+    mov [y], 0 
+    mov [chartodisplay], 'd'
+    inc [color]
+    call printCharAtXY
+
+    pauseLoop: 
+
+    mov ah, 1h
+    int 16h
+
+    jz pauseLoop
+
+    mov ah, 0
+    int 16h
+
+    cmp al, 27
+
+    je endOfPause
+    jmp pauseLoop
+
+    endOfPause:
+
+    call createframe
+    
+    popa 
+
+    pop bp
+    ret
 endp pausegame
-
-
 
 proc setTextAttribute
     push    es              ; save the seg register
@@ -192,549 +236,551 @@ setTextAttributesLoop:
 endp settextattribute
 
 proc waitForInput
-;waits for user input then puts the key pressed in al 
-mov ah,0h
-int 16h
-ret 
+    ;waits for user input then puts the key pressed in al 
+    mov ah,0h
+    int 16h
+    ret 
 endp waitforinput
 
 proc textMode
-;puts the screen in text mode 80 on 25
-pusha
-mov al, 03h
-mov ah,0
-int 10h
-popa
-ret
+    ;puts the screen in text mode 80 on 25
+    pusha
+    mov al, 03h
+    mov ah,0
+    int 10h
+    popa
+    ret
 endp textMode
 
 proc printStr
-;prints the string thats in dx
-push ax
-mov ah, 9
-int 21h
-pop ax
-ret
+    ;prints the string thats in dx
+    push ax
+    mov ah, 9
+    int 21h
+    pop ax
+    ret
 endp printStr
 
 proc newLine
-; print a new line
-pusha
-mov dx, offset line
-mov ah, 9
-int 21h
-popa
-ret
+    ; print a new line
+    pusha
+    mov dx, offset line
+    mov ah, 9
+    int 21h
+    popa
+    ret
 endp newLine
 
 proc make@ 
-;makes a star sign at the location x_column, y_row
-pusha 
-mov bh, 0
-mov dh, [@_y] ; in row
-mov dl, [@_x]
-mov ah, 2
-int 10h
+    ;makes a star sign at the location x_column, y_row
+    pusha 
+    mov bh, 0
+    mov dh, [@_y] ; in row
+    mov dl, [@_x]
+    mov ah, 2
+    int 10h
 
-mov ah, 9
-mov al, '@' ;AL = character to display
-mov bh, 0h ;BH=Page
-mov bl, 5; BL = Foreground
-mov cx, 1 ; number of times to write character
-int 10h ; Bois -&gt; show the character
-popa 
-ret
+    mov ah, 9
+    mov al, '@' ;AL = character to display
+    mov bh, 0h ;BH=Page
+    mov bl, 5; BL = Foreground
+    mov cx, 1 ; number of times to write character
+    int 10h ; Bois -&gt; show the character
+    popa 
+    ret
 endp make@
 
 proc makeSymbol 
-;makes a symbol sign at the location x_#, y_#
-pusha 
-mov bh, 0
-mov dh, [ysymbol]; in row
-mov dl, [xsymbol] 
-mov ah, 2
-int 10h
+    ;makes a symbol sign at the location x_#, y_#
+    pusha 
+    mov bh, 0
+    mov dh, [ysymbol]; in row
+    mov dl, [xsymbol] 
+    mov ah, 2
+    int 10h
 
-mov ah, 9
-mov al, [symbol] ;AL = character to display
-mov bh, 0h ;BH=Page
-mov bl, [symbolColor]; BL = Foreground
-mov cx, 1 ; number of times to write character
-int 10h ; Bois -&gt; show the character
-popa 
-ret
+    mov ah, 9
+    mov al, [symbol] ;AL = character to display
+    mov bh, 0h ;BH=Page
+    mov bl, [symbolColor]; BL = Foreground
+    mov cx, 1 ; number of times to write character
+    int 10h ; Bois -&gt; show the character
+    popa 
+    ret
 endp makeSymbol
 
 proc makePlus 
-;makes a plus sign at the location x_column, y_row
-pusha 
-mov bh, 0
-mov dh, [plus_y] ; in row
-mov dl, [plus_x]
-mov ah, 2
-int 10h
+    ;makes a plus sign at the location x_column, y_row
+    pusha 
+    mov bh, 0
+    mov dh, [plus_y] ; in row
+    mov dl, [plus_x]
+    mov ah, 2
+    int 10h
 
-mov ah, 9
-mov al, '+' ;AL = character to display
-mov bh, 0h ;BH=Page
-mov bl,  12; BL = Foreground
-mov cx, 1 ; number of times to write character
-int 10h ; Bois -&gt; show the character
-popa 
-ret
+    mov ah, 9
+    mov al, '+' ;AL = character to display
+    mov bh, 0h ;BH=Page
+    mov bl,  12; BL = Foreground
+    mov cx, 1 ; number of times to write character
+    int 10h ; Bois -&gt; show the character
+    popa 
+    ret
 endp makePlus
 
 proc Cursor_Location
-pusha 
-;Place the cursor on the screen
-mov bh, 0
-mov dh, [y] ; in row
-mov dl, [x]
-mov ah, 2
-int 10h
-popa 
-ret
+    pusha 
+    ;Place the cursor on the screen
+    mov bh, 0
+    mov dh, [y] ; in row
+    mov dl, [x]
+    mov ah, 2
+    int 10h
+    popa 
+    ret
 endp Cursor_Location
 
 proc DrawPlayer
-pusha
-; draw player in cursor position
-mov ah, 9
-mov al, 2Ah ;AL = character to display
-mov bh, 0h ;BH=Page
-mov bl, [color] ; BL = Foreground
-mov cx, 1 ; number of times to write character
-int 10h ; Bois -&gt; show the character
-popa
-ret
+    pusha
+    ; draw player in cursor position
+    mov ah, 9
+    mov al, 2Ah ;AL = character to display
+    mov bh, 0h ;BH=Page
+    mov bl, [color] ; BL = Foreground
+    mov cx, 1 ; number of times to write character
+    int 10h ; Bois -&gt; show the character
+    popa
+    ret
 endp DrawPlayer
 
-proc movePlayerRight 
 ;moves the player right except if there is a plus or star 
-;if there is a star it ends the game 
-;if there is a plus it doesnt move
-inc [x_move]
+;in the case that there is a star it ends the game 
+;in the case that there is a plus it doesnt move
+proc movePlayerRight 
 
-mov al, [x_move] 
-mov [x], al
-mov al, [y_move]  
-mov [y], al
+    inc [x_move]
 
-call Cursor_Location; move cursor to new place
-;check the character on coordinates
-mov bh, 0h ; Page=1
-mov ah, 08h ; Read character function
-int 10h ;Return the character value to AL
-cmp al, '+'
-jne MoveRight; Jump to draw player
-call clearBoard
-call make@
-MoveRight:
-cmp al,'*'
-je AplayerLost
+    mov al, [x_move] 
+    mov [x], al
+    mov al, [y_move]  
+    mov [y], al
 
-cmp al, '@'
-je callChangeSpeedRight
-jmp dontCallChangeSpeedRight 
-callChangeSpeedRight:
-call changeSpeed
-dontCallChangeSpeedRight:
+    call Cursor_Location; move cursor to new place
+    ;check the character on coordinates
+    mov bh, 0h ; Page=1
+    mov ah, 08h ; Read character function
+    int 10h ;Return the character value to AL
+    cmp al, '+'
+    jne MoveRight; Jump to draw player
+    call clearBoard
+    call make@
+    MoveRight:
+    cmp al,'*'
+    je AplayerLost
 
-cmp al, '#'
-je callinvertmovementRight 
-jmp dontcallinvertmovementright 
-callInvertMovementRight:
-call invertMovement
-dontCallInvertMovementRight:
+    cmp al, '@'
+    je callChangeSpeedRight
+    jmp dontCallChangeSpeedRight 
+    callChangeSpeedRight:
+    call changeSpeed
+    dontCallChangeSpeedRight:
 
-mov al, [x_move]
-mov [x], al
-mov al, [y_move]
-mov [y], al
+    cmp al, '#'
+    je callinvertmovementRight 
+    jmp dontcallinvertmovementright 
+    callInvertMovementRight:
+    call invertMovement
+    dontCallInvertMovementRight:
 
-call Cursor_Location; move cursor to new place
+    mov al, [x_move]
+    mov [x], al
+    mov al, [y_move]
+    mov [y], al
 
-mov al, [col_move] 
-mov [color], al
-call DRAWPLAYER
+    call Cursor_Location; move cursor to new place
 
-ret
+    mov al, [col_move] 
+    mov [color], al
+    call DRAWPLAYER
+
+    ret
 endp movePlayerRight 
 
-proc MovePlayerLeft
 ;moves the player left except if there is a plus or star 
-;if there is a star it ends the game 
-;if there is a plus it doesnt move
-dec [x_move] 
+;in the case that there is a star it ends the game 
+;in the case that there is a plus it doesnt move
+proc MovePlayerLeft
+    dec [x_move] 
 
-mov al, [x_move] 
-mov [x], al 
-mov al, [y_move]  
-mov [y], al 
+    mov al, [x_move] 
+    mov [x], al 
+    mov al, [y_move]  
+    mov [y], al 
 
-call Cursor_Location; move cursor to new place
-;check the character on coordinates
-mov bh, 0h ; Page=1
-mov ah, 08h ; Read character function
-int 10h ;Return the character value to AL
-cmp al, '+'
-jne MoveLeft; Jump to draw player
-call clearBoard
-call make@
-MoveLeft:
-cmp al,'*'
-je AplayerLost  
+    call Cursor_Location; move cursor to new place
+    ;check the character on coordinates
+    mov bh, 0h ; Page=1
+    mov ah, 08h ; Read character function
+    int 10h ;Return the character value to AL
+    cmp al, '+'
+    jne MoveLeft; Jump to draw player
+    call clearBoard
+    call make@
+    MoveLeft:
+    cmp al,'*'
+    je AplayerLost  
 
-cmp al, '@'
-je callChangeSpeedLeft
-jmp dontCallChangeSpeedLeft 
-callChangeSpeedLeft:
-call changeSpeed
-dontCallChangeSpeedLeft:
+    cmp al, '@'
+    je callChangeSpeedLeft
+    jmp dontCallChangeSpeedLeft 
+    callChangeSpeedLeft:
+    call changeSpeed
+    dontCallChangeSpeedLeft:
 
-cmp al, '#'
-je callinvertmovementLeft 
-jmp dontcallinvertmovementLeft 
-callInvertMovementLeft:
-call invertMovement
-dontCallInvertMovementLeft:
+    cmp al, '#'
+    je callinvertmovementLeft 
+    jmp dontcallinvertmovementLeft 
+    callInvertMovementLeft:
+    call invertMovement
+    dontCallInvertMovementLeft:
 
-mov al, [x_move] 
-mov [x], al
-mov al, [y_move]  
-mov [y], al
+    mov al, [x_move] 
+    mov [x], al
+    mov al, [y_move]  
+    mov [y], al
 
-call Cursor_Location; move cursor to new place
+    call Cursor_Location; move cursor to new place
 
-mov al, [col_move] 
-mov [color], al
-call DRAWPLAYER
+    mov al, [col_move] 
+    mov [color], al
+    call DRAWPLAYER
 
-ret
+    ret
 endp MovePlayerLeft
 
-proc MovePlayerDown
 ;moves the player down except if there is a plus or star 
-;if there is a star it ends the game 
-;if there is a plus it doesnt move
-inc [y_move] 
+;in the case that there is a star it ends the game 
+;in the case that there is a plus it doesnt move
+proc MovePlayerDown
+    inc [y_move] 
 
-mov al, [x_move] 
-mov [x], al
-mov al, [y_move]  
-mov [y], al
+    mov al, [x_move] 
+    mov [x], al
+    mov al, [y_move]  
+    mov [y], al
 
-call Cursor_Location; move cursor to new place
-;check the character on coordinates
-mov bh, 0h ; Page=1
-mov ah, 08h ; Read character function
-int 10h ;Return the character value to AL
-cmp al, '+'
-jne MoveDown; Jump to draw player
-call clearBoard
-call make@
-MoveDown:
-cmp al,'*'
-je AplayerLost 
+    call Cursor_Location; move cursor to new place
+    ;check the character on coordinates
+    mov bh, 0h ; Page=1
+    mov ah, 08h ; Read character function
+    int 10h ;Return the character value to AL
+    cmp al, '+'
+    jne MoveDown; Jump to draw player
+    call clearBoard
+    call make@
+    MoveDown:
+    cmp al,'*'
+    je AplayerLost 
 
-cmp al, '@'
-je callChangeSpeedDown
-jmp dontCallChangeSpeedDown 
-callChangeSpeedDown:
-call changeSpeed
-dontCallChangeSpeedDown:
+    cmp al, '@'
+    je callChangeSpeedDown
+    jmp dontCallChangeSpeedDown 
+    callChangeSpeedDown:
+    call changeSpeed
+    dontCallChangeSpeedDown:
 
-cmp al, '#'
-je callinvertmovementDown 
-jmp dontcallinvertmovementDown 
-callInvertMovementDown:
-call invertMovement
-dontCallInvertMovementDown:
+    cmp al, '#'
+    je callinvertmovementDown 
+    jmp dontcallinvertmovementDown 
+    callInvertMovementDown:
+    call invertMovement
+    dontCallInvertMovementDown:
 
-mov al, [x_move] 
-mov [x], al
-mov al, [y_move]  
-mov [y], al
+    mov al, [x_move] 
+    mov [x], al
+    mov al, [y_move]  
+    mov [y], al
 
-call Cursor_Location; move cursor to new place
+    call Cursor_Location; move cursor to new place
 
-mov al, [col_move] 
-mov [color], al
+    mov al, [col_move] 
+    mov [color], al
 
-call DRAWPLAYER
-ret
+    call DRAWPLAYER
+    ret
 endp MovePlayerDown
 
-proc MovePlayerUp 
 ;moves the player up except if there is a plus or star 
-;if there is a star it ends the game 
-;if there is a plus it doesnt move
-dec [y_move] 
+;in the case that there is a star it ends the game 
+;in the case that there is a plus it doesnt move
+proc MovePlayerUp 
 
-mov al, [x_move] 
-mov [x], al
-mov al, [y_move]  
-mov [y], al
+    dec [y_move] 
 
-call Cursor_Location; move cursor to new place
-;check the character on coordinates
-mov bh, 0h ; Page=1
-mov ah, 08h ; Read character function
-int 10h ;Return the character value to AL
-cmp al, '+'
-jne MoveUp; Jump to draw player
-call clearBoard
-call make@
-MoveUp:
-cmp al,'*'
-je AplayerLost 
+    mov al, [x_move] 
+    mov [x], al
+    mov al, [y_move]  
+    mov [y], al
 
-cmp al, '@'
-je callChangeSpeedUp
-jmp dontCallChangeSpeedUp 
-callChangeSpeedUp:
-call changeSpeed
-dontCallChangeSpeedUp:
+    call Cursor_Location; move cursor to new place
+    ;check the character on coordinates
+    mov bh, 0h ; Page=1
+    mov ah, 08h ; Read character function
+    int 10h ;Return the character value to AL
+    cmp al, '+'
+    jne MoveUp; Jump to draw player
+    call clearBoard
+    call make@
+    MoveUp:
+    cmp al,'*'
+    je AplayerLost 
 
-cmp al, '#'
-je callinvertmovementUp 
-jmp dontcallinvertmovementUp 
-callInvertMovementUp:
-call invertMovement
-dontCallInvertMovementUp:
+    cmp al, '@'
+    je callChangeSpeedUp
+    jmp dontCallChangeSpeedUp 
+    callChangeSpeedUp:
+    call changeSpeed
+    dontCallChangeSpeedUp:
 
-mov al, [x_move] 
-mov [x], al
-mov al, [y_move]  
-mov [y], al
+    cmp al, '#'
+    je callinvertmovementUp 
+    jmp dontcallinvertmovementUp 
+    callInvertMovementUp:
+    call invertMovement
+    dontCallInvertMovementUp:
 
-call Cursor_Location; move cursor to new place
+    mov al, [x_move] 
+    mov [x], al
+    mov al, [y_move]  
+    mov [y], al
 
-mov al, [col_move] 
-mov [color], al
+    call Cursor_Location; move cursor to new place
 
-call DRAWPLAYER
+    mov al, [col_move] 
+    mov [color], al
 
-ret
+    call DRAWPLAYER
+
+    ret
 endp MovePlayerUp 
 
 proc clearBoard
-pusha 
-call graphicmode
-call createframe
-popa 
-ret
+    pusha 
+    call graphicmode
+    call createframe
+    popa 
+    ret
 endp clearBoard
 
 proc invertMovement
-mov [shouldinvert], 1
-mov [numloopsinvert], 15
-ret 
+    mov [shouldinvert], 1
+    mov [numloopsinvert], 15
+    ret 
 endp invertmovement
 
 proc changeSpeed 
-pusha 
-call getrandonNum
+    pusha 
+    call getrandonNum
 
-mov ah, 0
-mov al, [randomnum]
+    mov ah, 0
+    mov al, [randomnum]
 
-mov bl, 2
-div bl 
+    mov bl, 2
+    div bl 
 
-mov ah, 1
-cmp ah, 0
-je faster
-jmp slower
-faster:
-mov [delayTimeHighWord], 1
-jmp endOfChangeSpeed
-slower:
-mov [delaytimehighword], 3
-endOfChangeSpeed:
+    mov ah, 1
+    cmp ah, 0
+    je faster
+    jmp slower
+    faster:
+    mov [delayTimeHighWord], 1
+    jmp endOfChangeSpeed
+    slower:
+    mov [delaytimehighword], 3
+    endOfChangeSpeed:
 
-;spawning # on map 
-mov [xsymbol], 20
-mov [ysymbol], 17
-mov [symbol], '#'
-mov [symbolcolor], 0Bh 
+    ;spawning # on map 
+    mov [xsymbol], 20
+    mov [ysymbol], 17
+    mov [symbol], '#'
+    mov [symbolcolor], 0Bh 
 
-call makesymbol
+    call makesymbol
 
-popa 
-ret
+    popa 
+    ret
 endp changeSpeed
 
 proc createFrame 
-pusha 
+    pusha 
 
-mov [color], 8
+    mov [color], 8
 
-mov [x],0
-mov [counter], 0
+    mov [x],0
+    mov [counter], 0
 
-mov cx, 40 
+    mov cx, 40 
 
-loop1: 
+    loop1: 
 
-mov al, [counter]
-mov [x], al 
-mov [y], 0 
+    mov al, [counter]
+    mov [x], al 
+    mov [y], 0 
 
-call cursor_location
-call drawplayer
+    call cursor_location
+    call drawplayer
 
-mov [x], al  
-mov [y], 24
+    mov [x], al  
+    mov [y], 24
 
-call cursor_location
-call drawplayer
+    call cursor_location
+    call drawplayer
 
-inc [counter]
+    inc [counter]
 
-loop loop1
+    loop loop1
 
-mov cx, 25
-mov [counter], 0
+    mov cx, 25
+    mov [counter], 0
 
-loop2: 
+    loop2: 
 
-mov [x], 0
-mov al, [counter]
-mov [y], al
+    mov [x], 0
+    mov al, [counter]
+    mov [y], al
 
-call cursor_location
-call drawplayer
+    call cursor_location
+    call drawplayer
 
-mov [x], 39
-mov [y], al 
+    mov [x], 39
+    mov [y], al 
 
-call cursor_location
-call drawplayer
+    call cursor_location
+    call drawplayer
 
-inc [counter]
+    inc [counter]
 
-loop loop2
+    loop loop2
 
-popa 
-ret
+    popa 
+    ret
 endp createframe
 
 proc getrandonNum
-pusha 
-MOV AH, 00h  ; interrupts to get system time        
-INT 1AH      ; CX:DX now hold number of clock ticks since midnight      
+    pusha 
+    MOV AH, 00h  ; interrupts to get system time        
+    INT 1AH      ; CX:DX now hold number of clock ticks since midnight      
 
-mov  ax, dx
-xor  dx, dx
-mov  cx, 10    
-div  cx       ; here dx contains the remainder of the division - from 0 to 9
-mov [randomnum], dl
-popa
-ret
+    mov  ax, dx
+    xor  dx, dx
+    mov  cx, 10    
+    div  cx       ; here dx contains the remainder of the division - from 0 to 9
+    mov [randomnum], dl
+    popa
+    ret
 endp getrandonNum
     
 
 proc movePlayerOne 
-pusha 
+    pusha 
 
-mov al, [x1_column]
-mov [x_move], al
-mov al, [y1_row]
-mov [y_move], al
-mov al, [p1_col]
-mov [col_move], al
+    mov al, [x1_column]
+    mov [x_move], al
+    mov al, [y1_row]
+    mov [y_move], al
+    mov al, [p1_col]
+    mov [col_move], al
 
-cmp [p1_dir], 'e'
-je movePOneRight
+    cmp [p1_dir], 'e'
+    je movePOneRight
 
-cmp [p1_dir], 'w'
-je movePOneLeft
+    cmp [p1_dir], 'w'
+    je movePOneLeft
 
-cmp [p1_dir], 's'
-je movePOneDown
+    cmp [p1_dir], 's'
+    je movePOneDown
 
-cmp [p1_dir], 'n'
-je movePOneUp
+    cmp [p1_dir], 'n'
+    je movePOneUp
 
-movePOneRight:
-call movePlayerRight
-jmp endOfMovePlayerOne
+    movePOneRight:
+    call movePlayerRight
+    jmp endOfMovePlayerOne
 
-movePOneLeft:
-call moveplayerleft
-jmp endOfMovePlayerOne
+    movePOneLeft:
+    call moveplayerleft
+    jmp endOfMovePlayerOne
 
-movePOneDown:
-call moveplayerdown
-jmp endOfMovePlayerOne
+    movePOneDown:
+    call moveplayerdown
+    jmp endOfMovePlayerOne
 
-movePOneUp:
-call moveplayerup
-jmp endOfMovePlayerOne
+    movePOneUp:
+    call moveplayerup
+    jmp endOfMovePlayerOne
 
-EndOfMovePlayerOne:
+    EndOfMovePlayerOne:
 
-mov al, [x_move] 
-mov [x1_column], al 
-mov al, [y_move] 
-mov [y1_row], al 
-mov al, [col_move]
-mov [p1_col], al
+    mov al, [x_move] 
+    mov [x1_column], al 
+    mov al, [y_move] 
+    mov [y1_row], al 
+    mov al, [col_move]
+    mov [p1_col], al
 
-popa
-ret
-Endp movePlayerOne
+    popa
+    ret
+    Endp movePlayerOne
 
-proc movePlayerTwo 
-pusha 
+    proc movePlayerTwo 
+    pusha 
 
-mov al, [x2_column]
-mov [x_move], al
-mov al, [y2_row]
-mov [y_move], al
-mov al, [p2_col]
-mov [col_move], al
+    mov al, [x2_column]
+    mov [x_move], al
+    mov al, [y2_row]
+    mov [y_move], al
+    mov al, [p2_col]
+    mov [col_move], al
 
-cmp [p2_dir], 'e'
-je movePTwoRight
+    cmp [p2_dir], 'e'
+    je movePTwoRight
 
-cmp [p2_dir], 'w'
-je movePTwoLeft
+    cmp [p2_dir], 'w'
+    je movePTwoLeft
 
-cmp [p2_dir], 's'
-je movePTwoDown
+    cmp [p2_dir], 's'
+    je movePTwoDown
 
-cmp [p2_dir], 'n'
-je movePTwoUp
+    cmp [p2_dir], 'n'
+    je movePTwoUp
 
-movePTwoRight:
-call movePlayerRight
-jmp endOfMovePlayerTwo
+    movePTwoRight:
+    call movePlayerRight
+    jmp endOfMovePlayerTwo
 
-movePTwoLeft:
-call moveplayerleft
-jmp endOfMovePlayerTwo
+    movePTwoLeft:
+    call moveplayerleft
+    jmp endOfMovePlayerTwo
 
-movePTwoDown:
-call moveplayerdown
-jmp endOfMovePlayerTwo
+    movePTwoDown:
+    call moveplayerdown
+    jmp endOfMovePlayerTwo
 
-movePTwoUp:
-call moveplayerup
-jmp endOfMovePlayerTwo
+    movePTwoUp:
+    call moveplayerup
+    jmp endOfMovePlayerTwo
 
-EndOfMovePlayerTwo:
+    EndOfMovePlayerTwo:
 
-mov al, [x_move] 
-mov [x2_column], al 
-mov al, [y_move] 
-mov [y2_row], al 
-mov al, [col_move]
-mov [p2_col], al
+    mov al, [x_move] 
+    mov [x2_column], al 
+    mov al, [y_move] 
+    mov [y2_row], al 
+    mov al, [col_move]
+    mov [p2_col], al
 
-popa
-ret
+    popa
+    ret
 Endp movePlayerTwo
 
 start:
@@ -749,6 +795,7 @@ startOfCode:
 
 call graphicmode
 
+;printing title screen
 mov dx, offset menu
 call printstr
 
@@ -765,6 +812,8 @@ je TheEnd
 cmp al, 'p'
 je explainGame 
 
+;checking if this is the first time the user doesnt press either esc or p
+;if it is the first time print 'press p to play or esc to leave...'
 cmp [numLoopsWaitForCharacter],1
 je printMessage 
 
@@ -777,9 +826,11 @@ mov dx, offset otherButton
 call printstr
 jmp waitForCharacter
 
+;this part of the code is responsible for priting the explain screen
 explainGame:
 call textmode
 
+;setting te colors of the screen 
 call settextattribute
 mov dx, offset explanation
 call printstr
@@ -803,19 +854,19 @@ mov [moveloopcounter], 0
 
 mov [y1_row] , 13
 mov [x1_column], 38
-mov [colorplayerone], 1
+; mov [colorplayerone], 1
 mov [p1_dir], 'w'
 
 mov [y2_row], 13 
 mov [x2_column],2 
-mov [colorplayertwo], 2
+; mov [colorplayertwo], 2
 mov [p2_dir], 'e'
 
 ;reseting screen for game 
 call graphicmode
 call createframe
 
-
+;printing the players in their starting positions 
 mov al, [x1_column]
 mov ah, [y1_row]
 mov [x], al
@@ -842,6 +893,9 @@ jmp Move
 
 
 Move: 
+;main game loop 
+;in each loop here each player moves one block in a given direction 
+
 cmp [numloopsinvert], 0
 je unInvertMovementJmp
 dec [numloopsinvert]
@@ -855,6 +909,7 @@ beforeCheckInputMove:
 mov ah, 1h
 int 16h
 
+;if nothing was pressed jumping to the part where the players are moved
 jz movePlayers
 
 mov ah, 0
@@ -892,26 +947,30 @@ je UpKeyTwo
 cmp al, 27
 je pause
 
+;the part which moves the players
 movePlayers: 
 
-mov [p1_or_p2_plus], 1
+mov [p1_or_p2_lost], 1;setting this variable so later its known who lost 
 call movePlayerOne
 
-mov [p1_or_p2_plus], 2
+mov [p1_or_p2_lost], 2;setting this variable so later its known who lost
 call movePlayerTwo
 
+;a delay so playes have time to react and everything is instantaneous
 call delay
 
 inc [moveloopcounter]
 ;end of loop 
 jmp move 
 
+;pauses the game
 pause: 
 
+push 3h
 call pauseGame
 jmp move
 
-;Changing player one dir
+;Changing player one dir according to what he pressed and if movement should be inverted 
 RightKeyOne:
 cmp [p1_dir], 'w'
 je movePlayers 
@@ -975,7 +1034,7 @@ mov [p1_dir], 's'
 endUpKeyOne:
 jmp movePlayers 
 
-;Changing player two dir
+;Changing player two dir according to what he pressed and if movement should be inverted 
 RightKeyTwo:
 cmp [p2_dir], 'w'
 je movePlayers 
@@ -1063,11 +1122,14 @@ jmp movePlayers
 ; mov [p2_dir], 'n'
 ; jmp movePlayers
 
+;makes the players movement normal again
 unInvertMovementJmp: 
 mov [shouldinvert], 0
 jmp afterDecInvertCounter 
 
 
+;spawns the plus
+;and sets the location of where @ will be spawned
 startSpawnPlus:
 mov al, [randomnum]
 add [plus_y], al
@@ -1115,12 +1177,14 @@ coordOfSpawnSet :
 
 jmp beforeCheckInputMove
 
+;if a player lost this will be run when he loses
 AplayerLost:
 
-cmp [p1_or_p2_plus], 1
+cmp [p1_or_p2_lost], 1
 je p1lost
 jmp p2Lost
 
+;if playerOne lost this will be run when he loses
 p1Lost:
 mov [winnercolor],021h 
 call textmode
@@ -1131,6 +1195,7 @@ call printstr
 
 jmp EndGame
 
+;if playerTwo lost this will be run when he loses
 p2Lost:
 mov [winnercolor],012h 
 call textmode
@@ -1145,7 +1210,6 @@ EndGame:
 
 ;print match ended string and tells the user which key to play again/quit
 ;printing the score 
-
 mov dx, offset scoreP1 
 call printstr
 mov dx, 0
@@ -1168,6 +1232,7 @@ mov al, [winnercolor]
 
 call settextattribute
 
+;algorithm thats loops until valid input is given then behaves according to input 
 waitingForValidInput: 
 
 call waitforinput
