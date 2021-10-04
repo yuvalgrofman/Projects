@@ -1,5 +1,6 @@
 import socket
 import chatlib  # To use chatlib functions or consts, use chatlib.**
+import re
 
 SERVER_IP = "127.0.0.1"  # Our server will run on same computer as client
 SERVER_PORT = 5678
@@ -92,11 +93,32 @@ def get_highscore(conn):
 def play_question(conn): 
 	cmd, data = build_send_recv_parse(conn, chatlib.PROTOCOL_CLIENT["GET_QUESTION"],"")
 
-	dataList = chatlib.split_data(data)
-	print(dataList[1])
-	answer = input("write your answer to the quesion? ")
+	dataList = chatlib.split_data(data, 6)
 
-	build_send_recv_parse(conn, chatlib.PROTOCOL_CLIENT["SEND_ANSWER"], dataList[0] + '#' + answer)
+	print(dataList[1])
+	print("The options are: \n 1: " + dataList[2] + "\n 2: " + dataList[3] + "\n 3: " + dataList[4] + "\n 4: " + dataList[5])
+	answer = input("write your answer to the quesion. \n")
+
+	newCmd, newData = build_send_recv_parse(conn, chatlib.PROTOCOL_CLIENT["SEND_ANSWER"], dataList[0] + '#' + answer)
+
+	if (newCmd == "WRONG_ANSWER"):
+		print("wrong answer. The correct answer is #" + newData)
+	
+	elif (newCmd == "CORRECT_ANSWER"):
+		print("correct answer.")
+	
+def get_logged_users(conn):
+	cmd , data = build_send_recv_parse(conn, chatlib.PROTOCOL_CLIENT["HIGHSCORE"], "")
+	users = re.split(": |\n",data)
+
+	for i in range(len(users)):
+
+		if (i % 2 ==  0 and i != len(users) - 1):
+			print("user #" + str(int((i + 2) / 2)) + " is " + users[i])
+
+	print("Those are the logged users")
+		
+
 
 
 def main():
@@ -106,13 +128,24 @@ def main():
 
 	while (True):
 
+		print("""p        Play a trivia question
+s        Get my score
+h        Get high score
+l        Get logged users
+q        Quit""")
 		cmd = input("Write a command \n")
 
 		if (cmd == "s"):
-			print("Your score is: " + get_score(conn))
+			print("Your score is " + get_score(conn))
 
 		elif (cmd == "h"):
 			get_highscore(conn)
+		
+		elif (cmd == 'p'):
+			play_question(conn)
+		
+		elif(cmd == "l"):
+			get_logged_users(conn)
 
 		elif (cmd == 'q'):
 			break
@@ -120,5 +153,5 @@ def main():
 	logout(conn)
 	conn.close()
 
-if __name__ == '_main_':
+if __name__ == '__main__':
     main()

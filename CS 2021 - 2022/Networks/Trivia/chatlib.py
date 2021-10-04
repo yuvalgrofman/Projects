@@ -13,7 +13,11 @@ DATA_DELIMITER = "#"  # Delimiter in the data part of the message
 
 PROTOCOL_CLIENT = {
 "login_msg" : "LOGIN",
-"logout_msg" : "LOGOUT"
+"logout_msg" : "LOGOUT",
+"HIGHSCORE" : "HIGHSCORE",
+"MY_SCORE" : "MY_SCORE",
+"GET_QUESTION" : "GET_QUESTION",
+"SEND_ANSWER" : "SEND_ANSWER" 
 }
 
 PROTOCOL_SERVER = {
@@ -91,7 +95,7 @@ def split_data(msg, expected_fields):
 
 	try:
 
-		if msg.count("#") != expected_fields:
+		if msg.count("#") != expected_fields - 1:
 			return None
 		
 		return msg.split("#")
