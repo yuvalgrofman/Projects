@@ -6,6 +6,27 @@
     "configurations": [
         {
             "type": "java",
+            "name": "Launch ExThree",
+            "request": "launch",
+            "mainClass": "Recursive.ExThree",
+            "projectName": "Projects_76dc349f"
+        },
+        {
+            "type": "java",
+            "name": "Launch ExFour",
+            "request": "launch",
+            "mainClass": "Recursive.ExFour",
+            "projectName": "Projects_76dc349f"
+        },
+        {
+            "type": "java",
+            "name": "Launch Recursive",
+            "request": "launch",
+            "mainClass": "Recursive",
+            "projectName": "Projects_76dc349f"
+        },
+        {
+            "type": "java",
             "name": "Launch Current File",
             "request": "launch",
             "mainClass": "${file}"

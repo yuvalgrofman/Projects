@@ -16,10 +16,11 @@
     }
   ],
   "java.project.sourcePaths": [
-    "pastProjects/Java Projects/Java Assignments",
-    "pastProjects/Java Projects/Java Assignments/static",
     "pastProjects/Java Projects/TicTacToe/src/yuval/grofman",
-    "pastProjects/Java Projects/Battleships"
+    "pastProjects/Java Projects/Java Assignments/static",
+    "pastProjects/Java Projects/Java Assignments",
+    "pastProjects/Java Projects/Battleships",
+    "CS 2021 - 2022/Data structures"
   ],
   "python.pythonPath": "C:\\Users\\User\\AppData\\Local\\Programs\\Python\\Python39\\python.exe",
   "java.project.referencedLibraries": [
