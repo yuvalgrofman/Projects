@@ -34,7 +34,8 @@
     "${workspaceFolder}/StockBot"
   ],
   "python.analysis.extraPaths": [
-    "${workspaceFolder}/ShowTracker"
+    "${workspaceFolder}/ShowTracker",
+    "./CS Hadarim/Networks/Trivia"
   ],
   "python.analysis.completeFunctionParens": true,
 }
