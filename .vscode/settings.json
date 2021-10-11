@@ -16,11 +16,7 @@
     }
   ],
   "java.project.sourcePaths": [
-    "pastProjects/Java Projects/TicTacToe/src/yuval/grofman",
-    "pastProjects/Java Projects/Java Assignments/static",
-    "pastProjects/Java Projects/Java Assignments",
-    "pastProjects/Java Projects/Battleships",
-    "CS 2021 - 2022/Data structures"
+    "CS Hadarim/Data structures/Recursive"
   ],
   "python.pythonPath": "C:\\Users\\User\\AppData\\Local\\Programs\\Python\\Python39\\python.exe",
   "java.project.referencedLibraries": [

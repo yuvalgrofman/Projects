@@ -6,6 +6,13 @@
     "configurations": [
         {
             "type": "java",
+            "name": "Launch ExSix",
+            "request": "launch",
+            "mainClass": "ExSix",
+            "projectName": "Projects_a80dded7"
+        },
+        {
+            "type": "java",
             "name": "Launch ExThree",
             "request": "launch",
             "mainClass": "Recursive.ExThree",

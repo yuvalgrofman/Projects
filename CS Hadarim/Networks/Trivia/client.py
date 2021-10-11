@@ -18,7 +18,7 @@ def build_and_send_message(conn, code, data):
 	msg = chatlib.build_message(code, data)
 
 	conn.send(msg.encode())
-	print("Sent server: " + msg)
+	# print("Sent server: " + msg)
 	
 
 
@@ -84,7 +84,7 @@ def get_score(conn):
 	if (not cmd == "YOUR_SCORE"):
 		error_and_exit("Received wrong error from Server")
 
-	return data
+	print("Your score is " + data)
 
 def get_highscore(conn):
 	cmd , data = build_send_recv_parse(conn, chatlib.PROTOCOL_CLIENT["HIGHSCORE"], "")
@@ -108,15 +108,9 @@ def play_question(conn):
 		print("correct answer.")
 	
 def get_logged_users(conn):
-	cmd , data = build_send_recv_parse(conn, chatlib.PROTOCOL_CLIENT["HIGHSCORE"], "")
-	users = re.split(": |\n",data)
+	cmd , data = build_send_recv_parse(conn, chatlib.PROTOCOL_CLIENT["LOGGED"], "")
 
-	for i in range(len(users)):
-
-		if (i % 2 ==  0 and i != len(users) - 1):
-			print("user #" + str(int((i + 2) / 2)) + " is " + users[i])
-
-	print("Those are the logged users")
+	print("Logged Users: " + data)
 		
 
 
@@ -136,7 +130,7 @@ q        Quit""")
 		cmd = input("Write a command \n")
 
 		if (cmd == "s"):
-			print("Your score is " + get_score(conn))
+			get_score(conn)
 
 		elif (cmd == "h"):
 			get_highscore(conn)

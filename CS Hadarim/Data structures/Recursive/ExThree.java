@@ -1,5 +1,3 @@
-package Recursive;
-
 public class ExThree {
     
     /**
