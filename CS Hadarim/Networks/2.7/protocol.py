@@ -1,7 +1,6 @@
 #   Ex. 2.7 template - protocol
 
-Client_Commands = {"DIR" : 1,"DELETE" : 1,"COPY" : 2,"EXECUTE" : 1,"TAKE_SCREENSHOT" : 0, "SEND_PHOTO" : 0} 
-Server = {}
+Client_Commands = {"DIR" : 1,"DELETE" : 1,"COPY" : 2,"EXECUTE" : 1,"TAKE_SCREENSHOT" : 0, "SEND_PHOTO" : 0, "EXIT" : 0} 
 
 
 
@@ -24,7 +23,7 @@ def check_cmd(data):
     cmd = data[0]
     param =  " ".join(data[1:])
 
-    if (cmd in Client_Commands.keys() and Client_Commands[cmd] == len(param)):
+    if (cmd in Client_Commands.keys() and Client_Commands[cmd] == (len(data) - 1)):
         return True
 
     return False
@@ -35,7 +34,7 @@ def parse_cmd(data):
     cmd = data[0]
     param =  data[1:]
 
-    return cmd, data
+    return cmd, param
 
 
     
@@ -46,14 +45,41 @@ def create_msg(data):
     """
 
     lenData = str(len(data))
-    lenlenData = len(lenData)
 
-    if (lenlenData > 2):
+    lenlenData = str(len(lenData))
+
+    if (len(lenlenData) == 1):
+        lenlenData = '0' + lenlenData
+
+    if (len(str(lenlenData)) > 2):
         raise ValueError("Illegal argument. Too much data.")
         
-    msg = lenlenData + lenData + data
+    msg = lenlenData + lenData + str(data)
     return msg.encode()
 
+
+def getImage(conn, filepath):
+
+        lenlenData = int(conn.recv(2).decode())
+        lenData = int(conn.recv(lenlenData).decode())
+
+        remainingData = lenData 
+        filetodown = open(filepath, "wb")
+
+        conn.settimeout(1.0)
+
+        try: 
+            while (remainingData > 1024):
+                data = conn.recv(1024)
+                filetodown.write(data)
+                remainingData -= 1024
+
+
+        except: 
+
+            conn.settimeout(None)
+
+            return True
 
 def get_msg(conn):
     """
