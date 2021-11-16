@@ -1,6 +1,6 @@
 import socket
 my_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-my_socket.connect(("54.71.128.194", 8850))
+my_socket.connect(("192.168.43.137", 8820))
 
 data = ""
 while data != "Bye":
@@ -10,4 +10,4 @@ while data != "Bye":
     print("The server sent " + data)
 
 print("Closing client socket")
-my_socket.close() 
+my_socket.close()

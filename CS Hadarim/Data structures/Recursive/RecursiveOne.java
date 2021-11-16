@@ -1,5 +1,6 @@
-public class Recursive
-{
+package Recursive;
+
+public class RecursiveOne{
 	
 	public static int factorial(int N){
 			

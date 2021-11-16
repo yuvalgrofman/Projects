@@ -16,7 +16,8 @@
     }
   ],
   "java.project.sourcePaths": [
-    "CS Hadarim/Data structures/Recursive"
+    "CS Hadarim/Data structures/Recursive",
+    "CS Hadarim/Data structures"
   ],
   "python.pythonPath": "C:\\Users\\User\\AppData\\Local\\Programs\\Python\\Python39\\python.exe",
   "java.project.referencedLibraries": [
