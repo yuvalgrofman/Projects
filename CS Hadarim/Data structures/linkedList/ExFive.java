@@ -1,6 +1,7 @@
 package linkedList;
 
 import java.util.Scanner;
+import java.util.function.Function;
 
 public class ExFive {
     

@@ -6,6 +6,20 @@
     "configurations": [
         {
             "type": "java",
+            "name": "Launch Use",
+            "request": "launch",
+            "mainClass": "linkedList.Use",
+            "projectName": "Projects_a80dded7"
+        },
+        {
+            "type": "java",
+            "name": "Launch ExEight",
+            "request": "launch",
+            "mainClass": "linkedList.ExEight",
+            "projectName": "Projects_a80dded7"
+        },
+        {
+            "type": "java",
             "name": "Launch ExOne",
             "request": "launch",
             "mainClass": "linkedList.ExOne",
